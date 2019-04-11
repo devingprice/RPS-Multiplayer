@@ -22,6 +22,7 @@ var twoHand = null;
 var userHand = null;
 var opponentHand = null;
 var playerId = null;
+var gameId = null;
 
 var $playerNumber = $('#player-number');
 var $playerId = $('#player-id');
@@ -55,7 +56,7 @@ db.ref('/game').on("value", function (snapshot) {
     console.log(values);
 
     if (values !== null && values[playerId] && Object.keys(values).length > 1) {
-        
+
         var chosen = Object.keys(values);
         var filtered = chosen.filter(function (value) {
             return value !== playerId;
@@ -103,6 +104,40 @@ db.ref(".info/connected").on("value", function (snap) {
         console.log(playerId);
         $playerId.text('player ' + playerId)
         con.onDisconnect().remove();
+
+        if (gameId === null) {
+            db.ref("/games").once('value', function (gamesObj) { //).then(
+                gamesObj.forEach(function (gameObj) {
+                    var gameKey = gameObj.key;
+                    var playersList = gameObj.child('players').val();
+                    console.log('players list', playersList)
+                    if ( Object.keys(playersList).length < 2) {
+                        console.log(gameObj.child('players'))
+                        db.ref('/games').child(gameKey).child('players').push(playerId)
+                        gameId = gameKey;
+                        console.log('put in game ', gameKey)
+                        return true;
+                    }
+                })
+                if (gameId === null) {
+                    var gameObj = db.ref("/games").push(true);
+                    gameObj.child('players').push(playerId)
+                    gameId = gameObj.key;
+                    
+                    gameObj.onDisconnect().remove();
+                    console.log('created game ', gameId)
+                }
+            })
+        }
+        /*
+        gameslist for each
+            if game playerslist < 2, add player, return gameId
+            if no gameId, make new game, add player
+        */
+
+        // var gameObj = db.ref("/games").push(playerId);
+        // var gameId = gameObj.getKey();
+        // gameObj.onDisconnect().remove();
     }
 });
 
@@ -116,7 +151,7 @@ db.ref("/connections").on("value", function (snapshot) {
 
 document.onkeyup = function (event) {
 
-    if (!userHand) { 
+    if (!userHand) {
 
         var userGuess = event.key;
 
@@ -134,6 +169,8 @@ document.onkeyup = function (event) {
     }
 
 }
+
+
 
 
 /*
