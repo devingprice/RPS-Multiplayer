@@ -1,3 +1,141 @@
+var config = {
+    apiKey: "AIzaSyDjjUO-7Gpv1uctdcr-pCH2lo6BUFKRA3M",
+    authDomain: "trilogy-bootcamp.firebaseapp.com",
+    databaseURL: "https://trilogy-bootcamp.firebaseio.com",
+    projectId: "trilogy-bootcamp",
+    storageBucket: "",
+    messagingSenderId: "35658232274"
+};
+
+firebase.initializeApp(config);
+var db = firebase.database();
+
+
+var wins = 0;
+var losses = 0;
+var ties = 0;
+
+var choices = ["r", "p", "s"];
+var playerNumber = null;
+var oneHand = null;
+var twoHand = null;
+var userHand = null;
+var opponentHand = null;
+var playerId = null;
+
+var $playerNumber = $('#player-number');
+var $playerId = $('#player-id');
+var $opponentId = $('#opponent-id');
+var $gameId = $('#game-id');
+var $userChoice = $('#user-choice');
+var $opponentChoice = $('#opponent-choice');
+var $wins = $('#wins');
+var $losses = $('#losses');
+var $ties = $('#ties');
+
+function clearBoard() {
+    //if i don't timeout the user chose from key click is updated before printing
+    setTimeout(function () {
+        var oldChoice = userHand;
+        var oldOppChoice = opponentHand;
+
+        userHand = null;
+        opponentHand = null;
+        $userChoice.text('You have yet to choose');
+        $opponentChoice.text("Opponent is chosing");
+
+        $('#old-opponent-choice').text("Opponent's last choice: " + oldOppChoice)
+        $('#old-user-choice').text("Players's last choice: " + oldChoice)
+
+    }, 1000)
+}
+
+db.ref('/game').on("value", function (snapshot) {
+    var values = snapshot.val();
+    console.log(values);
+
+    if (values !== null && values[playerId] && Object.keys(values).length > 1) {
+        
+        var chosen = Object.keys(values);
+        var filtered = chosen.filter(function (value) {
+            return value !== playerId;
+        })
+        var opponentId = filtered[0];
+        $opponentId.text('opponenet ' + opponentId)
+        opponentHand = values[opponentId].choice;
+        $opponentChoice.text('Your opponent choose: ' + opponentHand)
+
+        if ((userHand === "r" && opponentHand === "s") ||
+            (userHand === "s" && opponentHand === "p") ||
+            (userHand === "p" && opponentHand === "r")) {
+            console.log('win')
+            wins++;
+            db.ref('/game').set({})
+            clearBoard()
+        } else if (userHand === opponentHand) {
+            console.log('tie')
+            ties++;
+            db.ref('/game').set({})
+            clearBoard()
+        } else {
+            console.log('lose')
+            losses++;
+            db.ref('/game').set({})
+            clearBoard()
+        }
+
+        $wins.text(wins);
+        $losses.text(losses);
+        $ties.text(ties);
+
+    }
+
+}, function (errorObject) {
+    console.log("The read failed: " + errorObject.code);
+});
+
+
+
+db.ref(".info/connected").on("value", function (snap) {
+    if (snap.val()) {
+        var con = db.ref("/connections").push(true);
+        playerId = con.getKey();
+        console.log(playerId);
+        $playerId.text('player ' + playerId)
+        con.onDisconnect().remove();
+    }
+});
+
+db.ref("/connections").on("value", function (snapshot) {
+    playerNumber = Object.keys(snapshot.val()).indexOf(playerId) + 1;
+    console.log(snapshot.val())
+    console.log(playerNumber)
+    $playerNumber.text('You are player: ' + playerNumber)
+});
+
+
+document.onkeyup = function (event) {
+
+    if (!userHand) { 
+
+        var userGuess = event.key;
+
+        if ((userGuess === "r") || (userGuess === "p") || (userGuess === "s")) {
+            userHand = userGuess;
+
+            db.ref('/game').child(playerId).set({
+                choice: userHand
+            })
+
+            $userChoice.text('You choose: ' + userHand)
+        }
+    } else {
+        alert('already played, wait on player 2')
+    }
+
+}
+
+
 /*
 // https://stackoverflow.com/questions/3796025/fill-svg-path-element-with-a-background-image
 
@@ -72,143 +210,6 @@ displayStats(tab){
 showNav()
 }
 */
-
-
-///////////////firebase
-
-var config = {
-    apiKey: "AIzaSyDjjUO-7Gpv1uctdcr-pCH2lo6BUFKRA3M",
-    authDomain: "trilogy-bootcamp.firebaseapp.com",
-    databaseURL: "https://trilogy-bootcamp.firebaseio.com",
-    projectId: "trilogy-bootcamp",
-    storageBucket: "",
-    messagingSenderId: "35658232274"
-};
-
-firebase.initializeApp(config);
-var db = firebase.database();
-
-
-var wins = 0;
-var losses = 0;
-var ties = 0;
-
-var choices = ["r", "p", "s"];
-var playerNumber = null;
-var oneHand = null;
-var twoHand = null;
-
-
-var directionsText = document.getElementById("directions-text");
-var userChoiceText = document.getElementById("userchoice-text");
-var computerChoiceText = document.getElementById("computerchoice-text");
-var winsText = document.getElementById("wins-text");
-var lossesText = document.getElementById("losses-text");
-var tiesText = document.getElementById("ties-text");
-
-
-
-db.ref().on("value", function (snapshot) {
-    console.log(snapshot.val());
-    var values = snapshot.val();
-    if(values.player1Hand && values.player2Hand){
-
-        if (playerNumber === 1) {
-            twoHand = snapshot.val().player2Hand;
-        } else if (playerNumber === 2) {
-            twoHand = snapshot.val().player1Hand;
-        } else {
-            console.log('no player number yet')
-        }
-
-
-        if ((oneHand === "r" && twoHand === "s") ||
-            (oneHand === "s" && twoHand === "p") ||
-            (oneHand === "p" && twoHand === "r")) {
-            wins++;
-        } else if (oneHand === twoHand) {
-            ties++;
-        } else {
-            losses++;
-        }
-
-        computerChoiceText.textContent = "The opponent chose: " + twoHand;
-        winsText.textContent = "wins: " + wins;
-        lossesText.textContent = "losses: " + losses;
-        tiesText.textContent = "ties: " + ties;
-
-    }
-    
-
-}, function (errorObject) {
-    console.log("The read failed: " + errorObject.code);
-});
-
-function setDb(data) {
-    db.ref().set(
-        data
-    )
-}
-
-var connectionsRef = db.ref("/connections");
-var connectedRef = db.ref(".info/connected");
-// When the client's connection state changes...
-connectedRef.on("value", function (snap) {
-    // If they are connected..
-    if (snap.val()) {
-        // Add user to the connections list.
-        var con = connectionsRef.push(true);
-        // Remove user from the connection list when they disconnect.
-        con.onDisconnect().remove();
-    }
-});
-// When first loaded or when the connections list changes...
-connectionsRef.on("value", function (snapshot) {
-    // Display the viewer count in the html.
-    // The number of online users is the number of children in the connections list.
-    playerNumber = snapshot.numChildren();
-    console.log( playerNumber )
-});
-
-
-document.onkeyup = function (event) {
-    if (!oneHand && !playerNumber) {
-
-        var userGuess = event.key;
-        //var computerGuess = computerChoices[Math.floor(Math.random() * computerChoices.length)];
-        if ((userGuess === "r") || (userGuess === "p") || (userGuess === "s")) {
-            oneHand = userGuess;
-
-            db.ref().once("value", function (data) {
-                console.log('single check', data)
-                if (data.player1Hand) {
-                    db.ref().set({
-                        player2Hand: oneHand
-                    })
-                    //playerNumber = 2;
-                } else {
-                    db.ref().set({
-                        player1Hand: oneHand
-                    })
-                    //playerNumber = 1;
-                }
-
-            });
-
-            // Hide the directions
-            directionsText.textContent = "";
-
-            // Display the user and computer guesses, and wins/losses/ties.
-            userChoiceText.textContent = "You chose: " + oneHand;
-        }
-    } else {
-        alert('already played, wait on player 2')
-    }
-
-}
-
-
-
 /*
 leaderboards:
     online
