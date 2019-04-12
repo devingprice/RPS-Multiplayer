@@ -45,8 +45,8 @@ function clearBoard() {
         $userChoice.text('You have yet to choose');
         $opponentChoice.text("Opponent is chosing");
 
-        $('#old-opponent-choice').text("Opponent's last choice: " + oldOppChoice)
-        $('#old-user-choice').text("Players's last choice: " + oldChoice)
+        $('#old-opponent-choice').html("Opponent's last choice: " + handChoiceToIcon(oldOppChoice) )
+        $('#old-user-choice').html("Players's last choice: " + handChoiceToIcon(oldChoice) )
 
     }, 1000)
 }
@@ -64,7 +64,8 @@ db.ref('/game').on("value", function (snapshot) {
         var opponentId = filtered[0];
         $opponentId.text('opponenet ' + opponentId)
         opponentHand = values[opponentId].choice;
-        $opponentChoice.text('Your opponent choose: ' + opponentHand)
+        //$opponentChoice.text('Your opponent choose: ' + opponentHand)
+        $opponentChoice.html( handChoiceToIcon(opponentHand) )
 
         if ((userHand === "r" && opponentHand === "s") ||
             (userHand === "s" && opponentHand === "p") ||
@@ -73,16 +74,29 @@ db.ref('/game').on("value", function (snapshot) {
             wins++;
             db.ref('/game').set({})
             clearBoard()
+            gameToResults()
+            Swal.fire({
+                type: 'success',
+                title: 'You win!!!',
+                text: 'Great job!'
+            })
         } else if (userHand === opponentHand) {
             console.log('tie')
             ties++;
             db.ref('/game').set({})
             clearBoard()
+            gameToResults()
+            
         } else {
             console.log('lose')
             losses++;
             db.ref('/game').set({})
             clearBoard()
+            gameToResults()
+            Swal.fire({
+                title: 'Tie',
+                text: 'Something went wrong!'
+            })
         }
 
         $wins.text(wins);
@@ -98,7 +112,8 @@ db.ref('/game').on("value", function (snapshot) {
 
 
 db.ref(".info/connected").on("value", function (snap) {
-    if (snap.val()) {
+    var isConnected = snap.val();
+    if ( isConnected ) {
         var con = db.ref("/connections").push(true);
         playerId = con.getKey();
         console.log(playerId);
@@ -150,27 +165,64 @@ db.ref("/connections").on("value", function (snapshot) {
 
 
 document.onkeyup = function (event) {
-
     if (!userHand) {
-
         var userGuess = event.key;
-
-        if ((userGuess === "r") || (userGuess === "p") || (userGuess === "s")) {
-            userHand = userGuess;
-
-            db.ref('/game').child(playerId).set({
-                choice: userHand
-            })
-
-            $userChoice.text('You choose: ' + userHand)
-        }
+        pickPlayerChoice( userGuess )
     } else {
         alert('already played, wait on player 2')
     }
+}
+$(document).on('click', '.click-choice', function(){
+    var userGuess = $(this).attr('data-click-val');
+    pickPlayerChoice( userGuess )
+})
 
+function pickPlayerChoice( userGuess ){
+    if ((userGuess === "r") || (userGuess === "p") || (userGuess === "s")) {
+        userHand = userGuess;
+
+        db.ref('/game').child(playerId).set({
+            choice: userHand
+        })
+
+        //$userChoice.text('You choose: ' + userHand)
+        $userChoice.html(handChoiceToIcon(userHand))
+    }
 }
 
+function handChoiceToIcon(handChoiceString, color){
+    var html = '';
+    if (handChoiceString === "r"){
+        html = '<i class="fas fa-hand-rock fa-10x"></i>'
+    } else if (handChoiceString === "p") {
+        html = '<i class="fas fa-hand-paper fa-10x"></i>'
+    } else if (handChoiceString === "s") {
+        html = '<i class="fas fa-hand-scissors fa-10x"></i>'
+    }
+    return html;
+}
+function startToGame(){
+    setTimeout(function () {
+        $('#start-screen').removeClass('screen--active');
+        $('#game-screen').addClass('screen--active');
+    }, 1000)
+    
+}
+function gameToResults() {
 
+    setTimeout(function () {
+        $('#game-screen').removeClass('screen--active');
+        $('#results-screen').addClass('screen--active');
+        setTimeout(function () {
+            $('#game-screen').addClass('screen--active');
+            $('#results-screen').removeClass('screen--active');
+        }, 1000)
+    }, 1000)
+
+    
+}
+
+startToGame();
 
 
 /*

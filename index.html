@@ -1,39 +1,69 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>RPS Multiplayer</title>
-    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/reset.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/4.12.0/firebase.js"></script>
-</head>
-<body>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css"
+        integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@8.8.3/dist/sweetalert2.min.css">
     
-    <div>
-        <p>Press r, p, or s to start playing!</p>
-        <div id="player-number"></div>
-        <div id="player-id"></div>
-        <div id="opponent-id"></div>
-        <div id="game-id"></div>
-        <div id="user-choice"></div>
-        <div id="opponent-choice"></div>
-        
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
 
-        <br>
-        <br>
+<body>
+    <div class="screen screen--active" id="start-screen">
+        <h1>Start Playing!</h1>
+        <p>Press r, p, or s</p>
+        <p>or click the icons</p>
+    </div>
+    <div class="screen" id='game-screen'>
+        <div id="game-id"></div>
+        <div id="opponent-row">
+            <div id="opponent-id"></div>
+        </div>
+        
+        <div id="playing-field">
+            <div id="opponent-choice"></div>
+            <div id="user-choice"></div>
+        </div>
+        <div id='click-choices'>
+            <div class="click-container">
+                <i class="fas fa-hand-rock fa-10x click-choice" data-click-val="r"></i>
+            </div>
+            <div class="click-container">
+                <i class="fas fa-hand-paper fa-10x click-choice" data-click-val="p"></i>
+            </div>
+            <div class="click-container">
+                <i class="fas fa-hand-scissors fa-10x click-choice" data-click-val="s"></i>
+            </div>
+        </div>
+        <div id="player-row">
+            <div id="player-number"></div>
+            <div id="player-id"></div>
+        </div>
+        
+    </div>
+    <div class="screen" id="results-screen">
+        <div id="wins"></div>
+        <div id="losses"></div>
+        <div id="ties"></div>
 
         <p>Last choices:</p>
         
         <div id="old-user-choice"></div>
         <div id="old-opponent-choice"></div>
 
-        <div id="wins"></div>
-        <div id="losses"></div>
-        <div id="ties"></div>
+
     </div>
-    
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@8"></script>
     <script src="assets/javascript/app.js"></script>
 </body>
+
 </html>

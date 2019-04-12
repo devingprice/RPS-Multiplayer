@@ -1,0 +1,44 @@
+* {
+    box-sizing: border-box;
+}
+html, body{
+    height: 100%;
+}
+.screen{
+    height: 100%;
+    /*display: flex;*/
+    display:none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+.screen--active {
+    display: flex;
+}
+
+#game-screen, #results-screen {
+}
+
+#click-choices {
+    display: flex;
+    flex-direction:row;
+    justify-content: center;
+}
+.click-container {
+    border-radius: 25px;
+    border: 2px solid #73AD21;
+    padding: 10px; 
+}
+
+
+#game-id, #opponent-row, #player-row, #clickChoices {
+    flex-grow: 1;
+}
+#playing-field {
+    flex-grow: auto;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+}
