@@ -4,6 +4,11 @@
 html, body{
     height: 100%;
 }
+#overwrite-swal2-class {
+    height: 100%!important;
+    /* sweet alert 2 adds a class to force the body to go height auto when open so you can't scroll but this messes up my flex*/
+}
+
 .screen{
     height: 100%;
     /*display: flex;*/
@@ -69,6 +74,7 @@ html, body{
 #game-area {
     display: flex;
     flex-direction: column;
+    flex-grow:1;
 }
 #playing-field {
     flex-grow: 1;

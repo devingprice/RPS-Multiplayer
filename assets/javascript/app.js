@@ -36,24 +36,14 @@ var $wins = $('#wins');
 var $losses = $('#losses');
 var $ties = $('#ties');
 var $chatlog = $('#chat-log');
-//var $chatButton = $('#chat-submit');
 
 function clearBoard() {
 
-    //if i don't timeout the user chose from key click is updated before printing
-    setTimeout(function () {
-        var oldChoice = userHand;
-        var oldOppChoice = opponentHand;
-
-        userHand = null;
-        opponentHand = null;
-        $userChoice.text('You have yet to choose');
-        $opponentChoice.text("Opponent is chosing");
-
-        $('#old-opponent-choice').html("Opponent's last choice: " + handChoiceToIcon(oldOppChoice))
-        $('#old-user-choice').html("Players's last choice: " + handChoiceToIcon(oldChoice))
-
-    }, 1000)
+    userHand = null;
+    opponentHand = null;
+    $userChoice.text('You have yet to choose');
+    $opponentChoice.text("Opponent is chosing");
+    
 }
 function clearGameMoves(){
     db.ref('/games').child(gameId).child('moves').set({})
@@ -64,7 +54,8 @@ function showResults(resultsType){
         Swal.fire({
             type: 'success',
             title: 'YOU WIN!!!',
-            text: 'Great job!',
+            //text: 'Great job!',
+            html: '<div>Great job!</div><div>'+handChoiceToIcon(userHand, 'fa-4x')+' beats '+handChoiceToIcon(opponentHand, 'fa-4x')+'</div>',
             footer: createScoreDisplay()
         })
     } else if( resultsType === 'lose'){
@@ -72,14 +63,15 @@ function showResults(resultsType){
         Swal.fire({
             type: 'error',
             title: 'You lose...',
-            text: 'nice...',
+            //text: 'nice...',
+            html: '<div>nice...</div><div>'+handChoiceToIcon(userHand, 'fa-4x')+' loses to '+handChoiceToIcon(opponentHand, 'fa-4x')+'</div>',
             footer: createScoreDisplay()
         })
     } else if ( resultsType === 'tie'){
         console.log('tie')
         Swal.fire({
             title: 'Tie',
-            text: '',
+            html: '<div>'+handChoiceToIcon(userHand, 'fa-4x')+' is the same as '+handChoiceToIcon(opponentHand, 'fa-4x')+'</div>',
             footer: createScoreDisplay()
         })
     }
@@ -129,10 +121,6 @@ function createGameListeners() {
                 clearBoard()
 
             }
-
-            //$wins.text(wins);
-            //$losses.text(losses);
-            //$ties.text(ties);
 
         }
 
@@ -243,145 +231,24 @@ function pickPlayerChoice(userGuess) {
     if ((userGuess === "r") || (userGuess === "p") || (userGuess === "s")) {
         userHand = userGuess;
 
-        /*db.ref('/game').child(playerId).set({
-            choice: userHand
-        })*/
         db.ref('/games').child(gameId).child('moves').child(playerId).set({
             choice: userHand
         })
 
-        //$userChoice.text('You choose: ' + userHand)
         $userChoice.html(handChoiceToIcon(userHand))
     }
 }
 
-function handChoiceToIcon(handChoiceString, color) {
+function handChoiceToIcon(handChoiceString, size) {
+    var defaultSize = 'fa-10x';
+    if( size ){ defaultSize = size}
     var html = '';
     if (handChoiceString === "r") {
-        html = '<i class="fas fa-hand-rock fa-10x"></i>'
+        html = '<i class="fas fa-hand-rock ' + defaultSize + '"></i>'
     } else if (handChoiceString === "p") {
-        html = '<i class="fas fa-hand-paper fa-10x"></i>'
+        html = '<i class="fas fa-hand-paper ' + defaultSize + '"></i>'
     } else if (handChoiceString === "s") {
-        html = '<i class="fas fa-hand-scissors fa-10x"></i>'
+        html = '<i class="fas fa-hand-scissors ' + defaultSize + '"></i>'
     }
     return html;
 }
-
-/*
-function startToGame() {
-    setTimeout(function () {
-        $('#start-screen').removeClass('screen--active');
-        $('#game-screen').addClass('screen--active');
-    }, 1000)
-
-}
-function gameToResults() {
-
-    setTimeout(function () {
-        $('#game-screen').removeClass('screen--active');
-        $('#results-screen').addClass('screen--active');
-        setTimeout(function () {
-            $('#game-screen').addClass('screen--active');
-            $('#results-screen').removeClass('screen--active');
-        }, 1000)
-    }, 1000)
-
-
-}
-
-startToGame();*/
-
-
-/*
-// https://stackoverflow.com/questions/3796025/fill-svg-path-element-with-a-background-image
-
-
-VARIABLES
-var roundType;
-var gameSession = {
-    roundType, roundsPlayed, wins, losses
-}
-
-SCREENS
-start screen + roundButt
-round instructions + startButt
-online lobby
-round
-results
-leaderboard
-about
-
-
-FUNCTIONS
-start
-showRoundButtons()
-    on click goToRoundStart()
-        setRoundType(x)
-showLeaderboardButton()
-showAboutButton()
-
-roundStart
-showNav()
-showInstructions()
-showStartButton()
-    on click goToR
-if online showSearchForOpponentButton()
-
-lobby
-showNav()
-showSearching()
-getNumberOnline()
-showPlayWhileWaiting()
-
-round
-showNav()
-displayStage(){}
-pickHand(){}
-submitHand(){}
-checkForOpponentHand(){}
-playWaitingAnimation(){}
-playResultsAnimation(){}
-goToResultsScreen(){}
-showChat()
-checkForChatUpdate()
-submitChat()
-
-victory
-showNav()
-showWinLossRatio() //session and total
-showVictoryState()
-showPlayAgain()
-showQuitButton()
-showLeaderboardButton()
-if gamesPlayed > 4 askForUsername()
-
-leaderboard
-getStats()
-displayStats(tab){
-    if tab is ai
-        first line = user stats
-        rest = ranking desc
-    if tab is online
-    ...
-showNav()
-}
-*/
-/*
-leaderboards:
-    online
-    ...
-games: []
-    1: {
-        user1
-        user2
-        rounds: []
-            { 1: r, 2: s, winner: 1}
-    }
-users: []
-    tempId
-    enteredName
-    wins
-    loses
-    games
-
-*/

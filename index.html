@@ -16,12 +16,8 @@
     <link rel="stylesheet" href="assets/css/style.css">
 </head>
 
-<body>
-    <div class="screen" id="start-screen">
-        <h1>Start Playing!</h1>
-        <p>Press r, p, or s</p>
-        <p>or click the icons</p>
-    </div>
+<body id="overwrite-swal2-class">
+
     <div class="screen screen--active" id='game-screen'>
 
         <div id="opponent-row">
@@ -59,21 +55,6 @@
             <div id="player-number"></div>
             <div id="player-id"></div>
         </div>
-    </div>
-
-    </div>
-
-    <div class="screen" id="results-screen">
-        <div id="wins"></div>
-        <div id="losses"></div>
-        <div id="ties"></div>
-
-        <p>Last choices:</p>
-
-        <div id="old-user-choice"></div>
-        <div id="old-opponent-choice"></div>
-
-
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@8"></script>
